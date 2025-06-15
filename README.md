@@ -73,7 +73,16 @@ Setelah transformasi data, tidak ditemukan adanya *outlier* pada *dataset*. Hal 
 
 Tidak ada proses pembersihan data yang dilakukan karena dataset sudah terbukti bersih dari *missing value*, duplikat, dan *outlier*.
 
-### Univariate Analysis (EDA)
+### Data Splitting
+
+Data dibagi menjadi *fitur* (`X`) dan *target* (`y`). Fitur `X` mencakup semua kolom kecuali `Salary (USD)`, sedangkan `y` adalah kolom `Salary (USD)`. Dataset kemudian dibagi menjadi data *training* dan *testing* dengan proporsi 70:30 (70% untuk *training*, 30% untuk *testing*).
+
+* Jumlah data total: 500
+* Jumlah data training: 350
+* Jumlah data testing: 150
+
+## Exploratory Data Analysis (EDA)
+### Univariate Analysis 
 
 * **Secara keseluruhan**, distribusi fitur pada data ini cukup merata di tiap kolom.
 * **Years of Experience**: Distribusi pengalaman tersebar cukup merata dari 0 hingga sekitar 15 tahun, namun sedikit lebih rendah pada tahun-tahun awal (0-2 tahun) dan sekitar 5-7 tahun.
@@ -97,27 +106,36 @@ Tidak ada proses pembersihan data yang dilakukan karena dataset sudah terbukti b
 
 Untuk menyelesaikan permasalahan prediksi gaji tahunan (`Salary (USD)`), dua algoritma regresi dipilih: Random Forest Regressor dan XGBoost Regressor. Keduanya dipilih karena mampu menangani data dengan banyak variabel kategorikal (terutama yang telah diubah menjadi numerik menggunakan LabelEncoder) dan *non-linear relationship* antara fitur dan target.
 
-### Data Splitting
-
-Data dibagi menjadi *fitur* (`X`) dan *target* (`y`). Fitur `X` mencakup semua kolom kecuali `Salary (USD)`, sedangkan `y` adalah kolom `Salary (USD)`. Dataset kemudian dibagi menjadi data *training* dan *testing* dengan proporsi 70:30 (70% untuk *training*, 30% untuk *testing*).
-
-* Jumlah data total: 500
-* Jumlah data training: 350
-* Jumlah data testing: 150
-
 ### Random Forest
-
 Random Forest cocok digunakan karena *dataset* ini memiliki banyak fitur kategorikal yang sudah diubah ke bentuk numerik menggunakan Label Encoding. Model ini tidak sensitif terhadap urutan angka hasil *encoding*, sehingga tetap dapat menghasilkan prediksi yang baik. Selain itu, jumlah kategori pada setiap fitur tidak terlalu banyak (umumnya <10), sehingga kompleksitas model tetap terjaga.
 
-**Training Model:**
-Model Random Forest Regressor diinisialisasi dengan `random_state=42` dan dilatih menggunakan data *training* (`X_train`, `y_train`).
+#### Cara Kerja:
+Random Forest merupakan algoritma ensemble berbasis decision tree. Ia membangun banyak pohon keputusan (tree) saat proses pelatihan dan menggabungkan prediksi dari semua pohon tersebut untuk menghasilkan output akhir. Dalam regresi, hasil akhirnya adalah rata-rata dari semua prediksi pohon.
+
+#### Keunggulan:
+* Mengurangi risiko overfitting dibandingkan decision tree tunggal
+* Cocok untuk data dengan fitur kompleks dan non-linear
+#### Parameter yang Digunakan:
+* `n_estimators=100:` Jumlah pohon yang dibangun dalam forest.
+* `random_state=42:` Menjaga konsistensi hasil (reproducibility).
+* `max_depth=None:` Kedalaman pohon tidak dibatasi, artinya setiap pohon bisa tumbuh bebas sampai daun.
 
 ### XGBoost
-
 XGBoost juga sesuai karena mampu menangani data kategorikal yang sudah di-*label encoding* dengan baik. Model ini kuat terhadap data tabular seperti yang digunakan dalam proyek ini, dan memiliki kemampuan generalisasi yang baik, terutama jika dilakukan *tuning hyperparameter*. Jumlah kategori yang relatif sedikit juga membuat proses *training* lebih efisien.
 
-**Training Model:**
-Model XGBoost Regressor diinisialisasi dengan `random_state=42` dan dilatih menggunakan data *training* (`X_train`, `y_train`).
+#### Cara Kerja:
+XGBoost adalah algoritma boosting berbasis pohon keputusan yang bekerja dengan cara membangun model secara berurutan, di mana setiap model baru memperbaiki kesalahan model sebelumnya menggunakan gradient descent. Proses ini dioptimalkan secara efisien, menjadikannya sangat cepat dan akurat.
+
+#### Keunggulan:
+* Performa tinggi (baik akurasi maupun kecepatan)
+* Dilengkapi dengan regularisasi untuk mencegah overfitting
+* Sangat baik dalam menangani missing value dan fitur kategorikal
+
+#### Parameter yang Digunakan:
+* `n_estimators=100:` Jumlah boosting rounds (jumlah pohon).
+* `learning_rate=0.1:` Seberapa besar kontribusi tiap pohon terhadap model akhir.
+* `max_depth=3:` Batas kedalaman tiap pohon untuk mencegah overfitting.
+* `random_state=42:` Untuk menjaga konsistensi hasil.
 
 ## Evaluation
 
